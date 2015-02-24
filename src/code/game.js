@@ -92,55 +92,67 @@ function Game() {
 Game.prototype = Object.create(Engine.Node.prototype);
 Game.prototype.contructor = Game;
 
-Game.prototype.isWall = function(xC, yC) {
-	var xC = Math.round(xC / config.map.tileS);		
-	var yC = Math.floor(yC / config.map.tileS);		
-			
-	if(yC < 0 || yC >= this.level.length || xC < 0 || xC >= this.level.length)
-		return true;		
-	return this.level[xC][yC] != 1;
-};
+function pow2(val) {
+	return val * val;
+}
 
-Game.prototype.cast = function(pos, direction, rayNum, deltaAngle) {					
-	
-	var clampedPosX = Math.floor(pos.x / config.map.tileS);
-	var clampedPosY = Math.floor(pos.y / config.map.tileS);	
-	var tanAngle = Math.tan(direction.angle());		
+Game.prototype.cast = function(pos, direction, rayNum, deltaAngle) {	
+	var dAng = direction.angle() % (Math.PI * 2);	
+	var self = this;
+	if(dAng < 0) dAng += Math.PI * 2;				
 
-	var yFacingUp = direction.cross(new Victor(1, 0)) > 0;		
-	var Ay = yFacingUp ?  clampedPosY * config.map.tileS - 1 : 
-						  (clampedPosY + 1) * config.map.tileS;							 
-	var Ax = pos.x + (pos.y - Ay) / tanAngle;			
+	var yFacingUp = dAng > Math.PI && dAng < Math.PI * 2;		
+	var xFacingLeft = dAng > Math.PI * 0.5 && dAng < Math.PI * 1.5;
+	var angSin = Math.sin(dAng), angCos = Math.cos(dAng);
+	var addY = 0;
+	var addX = 0;
+
+	var isWall = function(xC, yC) {	
+		var xC = Math.floor(xC / config.map.tileS) + addX;		
+		var yC = Math.floor(yC / config.map.tileS) + addY;		
+				
+		if(yC < 0 || yC >= self.level.length || xC < 0 || xC >= self.level.length)
+			return true;		
+		return self.level[xC][yC] != 1;
+	};
+
+	var Ay = yFacingUp ?  Math.floor(pos.y) : Math.ceil(pos.y);							 
+	var Ax = pos.x + (Ay - pos.y) * (angCos / angSin);				
 	var Ya = yFacingUp ? -config.map.tileS : config.map.tileS;		
-	var Xa = Ya / tanAngle;			
-
-	var xFacingLeft = direction.cross(new Victor(0, 1)) < 0;
-	var Bx = xFacingLeft ? clampedPosX * config.map.tileS - 1 : 
-						   (clampedPosX + 1) * config.map.tileS;	
-	var By = pos.y + (pos.x - Bx) * tanAngle;	
-	var Xb = xFacingLeft ? -config.map.tileS : config.map.tileS;	
-	var Yb = Xb * tanAngle;	
-		
-	var lenX = -1;
-	var lenY = -1;	
+	var Xa = Ya * (angCos / angSin);			
 	
-	do {				
-		if(this.isWall(Ax, Ay)) {
-			lenX = Math.sqrt((Ax - pos.x) * (Ax - pos.x) + (Ay - pos.y) * (Ay - pos.y));						 			
+	var Bx = xFacingLeft ? Math.floor(pos.x) : Math.ceil(pos.x);		
+	var By = pos.y + (Bx - pos.x) * (angSin / angCos);		
+	var Xb = xFacingLeft ? -config.map.tileS : config.map.tileS;	
+	var Yb = Xb * (angSin / angCos);	
+			
+	var lenX = 0, lenY = 0;	
+
+	if(yFacingUp)
+		addY = -1;
+	do {			
+		if(isWall(Ax, Ay)) {
+			lenX = Math.sqrt(pow2(Ax - pos.x) + pow2(Ay - pos.y));						 			
+			break;
 		} else { 
 			Ax += Xa;
-			Ay += Ya;
+			Ay += Ya;				
 		}		
-	} while(lenX == -1);
-	
-	do {				
-		if(this.isWall(Bx, By))  {
-			lenY = Math.sqrt((Bx - pos.x) * (Bx - pos.x) + (By - pos.y) * (By - pos.y));						 			
+	} while(true);
+
+	addY = 0;
+	if(xFacingLeft)
+		addX = -1;
+	do {		
+		if(isWall(Bx, By))  {
+			lenY = Math.sqrt(pow2(Bx - pos.x) + pow2(By - pos.y));
+			break;						 			
 		} else {
 			Bx += Xb;
-			By += Yb;
+			By += Yb;	
 		}		
-	} while(lenY == -1);
+	} while(true);
+	
 
 	var finLen = Math.min(lenX, lenY);	
 

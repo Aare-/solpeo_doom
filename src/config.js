@@ -33,7 +33,7 @@ var config = {
 		tileS: 10,
 		playerS: 4,		
 		left: 250,
-		top: 50
+		top: 100
 	},
 
 	map: {
