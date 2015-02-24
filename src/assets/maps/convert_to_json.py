@@ -24,12 +24,7 @@ for file in glob.glob("*.bmp"):
 		for y in range(height):
 			cpixel = pixels[x, y]
 			
-			counter = 0
-			for v in valueMap:				
-				if compareArrays(v, cpixel):
-					row.append(counter)
-					break
-				counter += 1
+			row.append(cpixel)
 			
 		all_pixels.append(row)
 

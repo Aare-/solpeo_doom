@@ -6,6 +6,7 @@
   "dest": "build/",
   "files": [
     "src/*.js",
+    "src/libs/*.js",
     "src/code/*.js",
     "src/maps/*.json"
   ],

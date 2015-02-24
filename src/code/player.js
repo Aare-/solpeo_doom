@@ -7,8 +7,8 @@ var keyboard =
 };
 
 function Player() {
-	this.pos = new Victor(20 * config.map.tileS, 18 * config.map.tileS);
-	this.direction = new Victor(0, -1);	
+	this.pos = new Victor(1.5 * config.map.tileS, 1.5 * config.map.tileS);
+	this.direction = new Victor(0, 1);	
 
 	Engine.Input.on('keydown', function(e){
 		switch (e.key){
@@ -54,14 +54,10 @@ Player.prototype.onStep = function() {
 
 	this.direction.multByScalar(config.player.movSpeed);
 
-	if(keyboard.up) {		
-		newPos.add(this.direction);
-	}
-		
-	if(keyboard.down) {
-		newPos.subtract(this.direction);		
-	}
-		
+	if(keyboard.up)
+		newPos.add(this.direction);		
+	if(keyboard.down)
+		newPos.subtract(this.direction);					
 
 	newPos.x = Math.max(0, Math.min(game.level.length * config.map.tileS, newPos.x));
 	newPos.y = Math.max(0, Math.min(game.level[0].length * config.map.tileS, newPos.y));
@@ -72,23 +68,22 @@ Player.prototype.onStep = function() {
 	var tileOnMapX = Math.floor(newPos.x / (levelW) * game.level.length);
 	var tileOnMapY = Math.floor(newPos.y / (levelH) * game.level[0].length);
 	
-	if(tileOnMapX < 0 || tileOnMapX > game.level.length ||
-	   tileOnMapY < 0 || tileOnMapY > game.level.length ||
-	   game.level[tileOnMapX][tileOnMapY] != 1)
+	if(tileOnMapX <= 0 || tileOnMapX > game.level.length ||
+	   tileOnMapY <= 0 || tileOnMapY > game.level.length ||	   
+		(game.level[tileOnMapX][tileOnMapY] != null && 
+		 (game.level[tileOnMapX][tileOnMapY][0] != 255 &&
+		  game.level[tileOnMapX][tileOnMapY][1] != 255 &&
+		  game.level[tileOnMapX][tileOnMapY][2] != 255))
+	   )
 		newPos.copy(this.pos);			
 	else
 		this.pos.copy(newPos);	
 
-	var xOnMap = this.pos.x / (levelW);
-	var yOnMap = this.pos.y / (levelH);
-
-	var minimapW = game.level.length * config.minimap.tileS;
-	var minimapH = game.level[0].length * config.minimap.tileS;
-
-	game.playerMinimap.x = toMinimapX(this.pos.x);
+	/*game.playerMinimap.x = toMinimapX(this.pos.x);
 	game.playerMinimap.y = toMinimapY(this.pos.y);
 
 	game.playerDirection.x = game.playerMinimap.x + 15 ;
 	game.playerDirection.y = game.playerMinimap.y;
-	game.playerDirection.rotation = -this.direction.angle();
+	game.playerDirection.rotation = -this.direction.angle();*/
+
 };

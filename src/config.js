@@ -3,7 +3,7 @@ var config = {
 	scene: {
 		width: 900,
 		height: 600,
-		slice_width: 15
+		slice_width: 10
 	},
 
 	// size of a viewport
@@ -26,7 +26,10 @@ var config = {
 		movSpeed: 4,
 		rotSpeed: 0.05,
 		planeX: 0,
-		planeY: 0.66
+		planeY: 0.66,
+		FOV: 70,
+		far: 250,
+		lightDistance: 300
 	},
 
 	minimap: {
@@ -37,7 +40,7 @@ var config = {
 	},
 
 	map: {
-		tileS: 30
+		tileS: 40
 	}
 
 };
